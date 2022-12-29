@@ -1,0 +1,109 @@
+﻿@model IEnumerable<MassFacultyUpdateNew.Models.V_StudentAdvisorUpdateApp>
+@{
+    var datatableType = ViewData["TableType"].ToString();
+}
+<table id="@datatableType" class="table table-striped table-bordered text-center tablelist stdlst" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            @if (datatableType != "stdlistdestintb")
+            {
+                <th></th>
+            }
+            <th>
+                @Html.DisplayNameFor(model => model.StudentID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.studname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MajorMinorName)
+            </th>
+            @if (datatableType != "stdlistdestintb")
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.AdvisorName)
+                </th>
+            }
+            <th>
+                @Html.DisplayNameFor(model => model.StudentRegistered)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EnrollmentStatus)
+            </th>
+
+            @if (datatableType != "stdlistdestintb")
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.CreditsCompleted)
+                </th>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.LastTermReg)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.YearLevel)
+                </th>
+            }
+            @if (datatableType == "singlestdlistorigintb")
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.TextTerm)
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            @if (datatableType != "stdlistdestintb")
+            {
+                <td>
+                    @item.StudentID
+                </td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.StudentID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.studname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MajorMinorName)
+            </td>
+            @if (datatableType != "stdlistdestintb")
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.AdvisorName)
+                </td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.StudentRegistered)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EnrollmentStatus)
+            </td>
+            @if (datatableType != "stdlistdestintb")
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreditsCompleted)
+                </td>
+                <th>
+                    @Html.DisplayFor(modelItem => item.LastTermReg)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.YearLevel)
+                </th>
+            }
+            @if (datatableType == "singlestdlistorigintb")
+            {
+                <th>
+                    @Html.DisplayFor(modelItem => item.TextTerm)
+                </th>
+                <input type="hidden" id="txtlastesterm" value="@item.TermCalendarID" />
+            }
+        </tr>
+        }
+    </tbody>
+</table>
+

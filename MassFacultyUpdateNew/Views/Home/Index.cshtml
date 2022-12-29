@@ -1,0 +1,339 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<style>
+    .hide{
+        display:none;
+    }
+    .hided {
+        display: none;
+    }
+</style>
+<div>
+    @*<h4 class="text-center mb-3">Advisor Update App</h4>*@
+    <div>
+        <div class="row">
+            <div class="col col-6">
+                <p class="text-center"><b><u>Origin Section</u></b></p>
+                <div class="row mb-4">
+                    <div class="col-3 mb-4">
+                        <div class="form-group">
+                            <label class="control-label fw-bold mb-2">Select Term</label>
+                            <select required class="multi_select" id="selectedTerm" asp-items="@(new SelectList(ViewBag.Terms, "TermCalendarID", "TextTerm"))"></select>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <div class="form-group">
+                            <label class="control-label fw-bold mb-2">Select Programs</label>
+                            @*<select required class="form-control" name="fjdsgh" id="fhgfjsd" asp-items="@(new SelectList(ViewBag.Programslst, "programID", "programName"))"></select>*@
+                            <select required class="multi_select" id="originProgram" asp-items="@(new SelectList(ViewBag.Programslst, "programID", "programName"))" multiple></select>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label class="control-label fw-bold mb-2">Select Advisors</label>
+                            <select required class="multi_select" id="originAdvisors" asp-items="@(new SelectList(ViewBag.Advisors, "AdvisorID", "Emailaddr"))" multiple></select>
+                        </div>
+                        <span class="float-end mt-2"><a href="#" class="btn btn-dark showClick showed">More <i class="fas fa-arrow-up"></i></a><a href="#" class="btn btn-dark hideClick hided">Less <i class="fas fa-arrow-down"></i></a></span>
+                    </div>
+                    <div class="col-3 hided">
+                        <div class="form-group">
+                            <label class="control-label fw-bold mb-2">Select Registered</label>
+                            <select required class="form-control" id="registeredStatus" @*asp-items="@(new SelectList(ViewBag.Advisors, "AdvisorID", "Emailaddr"))"*@>
+                                <option value="">Select Option</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3 hided">
+                        <div class="form-group">
+                            <label class="control-label fw-bold mb-2">Select Enrollment Status</label>
+                            <select required class="form-control" id="enrolmentStatus" asp-items="@(new SelectList(ViewBag.enrolstatus, "EnrollmentStatusID", "Status"))">                               
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3 hided">
+                        <div class="form-group">
+                            <label class="control-label fw-bold mb-2">Select Year Level</label>
+                            <select required class="form-control" id="yearLevel" asp-items="@(new SelectList(ViewBag.yearlevel, "UniqueID", "DisplayText"))">                                
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3" style="padding-top: 30px;">
+                        <button class="btn btn-danger button" id="stdsearch"><i class="loading-icon fa fa-spinner fa-spin hide"></i> <span class="btn-txt">Search Students</span> </button>
+                    </div>
+                </div>
+            </div>       
+            <div class="col-1"></div>
+            <div class="col col-5">
+                <p class="text-center"><b><u>Destination Section</u></b></p>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <div class="form-group">
+                            <label class="control-label fw-bold mb-2">Select Programs</label>
+                            @*<select required class="form-control" name="fjdsgh" id="fhgfjsd" asp-items="@(new SelectList(ViewBag.Programslst, "programID", "programName"))"></select>*@
+                            <select required class="multi_select" id="destinProgram" asp-items="@(new SelectList(ViewBag.Programslst, "programID", "programName"))" multiple>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="control-label fw-bold mb-2">Select Advisors</label>
+                            @{ 
+                                var advlist = ViewBag.Advisors;
+                                advlist.Insert(0, new Faculties { AdvisorID = 0, Emailaddr = "Select No Advisor" });
+                            }
+                            <select required class="form-control-lg w-100" id="destinAdvisor" asp-items="@(new SelectList(advlist, "AdvisorID", "Emailaddr"))">
+                                @*<option value="">--select a Advisor--</option>*@
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-4" style="padding-top: 30px;">
+                        <button class="btn btn-danger button1" id="stdsearchdestin"><i class="loading-icon1 fa fa-spinner fa-spin hide"></i> <span class="btn-txt1">Search Students</span> </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detailcontainer">
+            <div class="row">
+                <div class="col col-7">
+                    <div id="stdlistorigin">
+                    </div>
+                </div>
+                <div class="col col-1">
+                    <div style="margin-top: 100px;text-align:center;"><button type="button" id="updateadvisor" class="btn btn-danger btn-arrow-right updtbtn" style="display:none;padding-left: 18px;">Transfer</button></div>
+                </div>
+                <div class="col col-4">
+                    <div id="stdlistdestination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section scripts{
+
+    <script type="text/javascript">
+
+    VirtualSelect.init({
+        ele: '.multi_select'
+    });
+
+    $(document).ready(function () {
+        var mytable;
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            $($.fn.dataTable.tables(true)).css('width', '100%');
+            $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+        });
+
+        $('.showClick').click(function () {
+
+            $('.hided').show();
+
+            $('.showed').hide();
+
+        });
+
+        $('.hideClick').click(function () {
+
+            $('.hided').hide();
+
+            $('.showed').show();
+
+        });
+
+        $("#stdsearch").click(function () {
+
+            var term = $("#selectedTerm").val();
+            if (term == null || term == undefined) {
+                alert("Please select a valid term for effecient search results!")
+            }
+
+            $(".loading-icon").removeClass("hide");
+            $(".button").attr("disabled", true);
+            $(".btn-txt").text("Searching in DB");
+            
+            var originprograms = $("#originProgram").val();
+            if (originprograms.length > 0) {
+                originprograms = originprograms.join(",");
+            }
+            else {
+                originprograms = "0";
+            }
+            var originadvisors = $("#originAdvisors").val();
+            if (originadvisors.length > 0) {
+                originadvisors = originadvisors.join(",");
+            }
+            else {
+                originadvisors = "0";
+            }
+            var registeredstatus = $("#registeredStatus").val();
+            var enrolmentStatus = $("#enrolmentStatus option:selected").text();
+            if (enrolmentStatus == "Select a status") { enrolmentStatus = "" };
+            var yrLevel = $("#yearLevel option:selected").text();
+            if (yrLevel == "Select a Year") { yrLevel = "" };
+            
+           // alert(enrolmentStatus);
+
+            $("#stdlistorigin").load("@Url.Action("StudentDetails", "Home")", { searchTerm: term, searchAdvisors: originadvisors, requestType: "Origin", searchPrograms: originprograms, searchRegistered: registeredstatus, searchStatus: enrolmentStatus, yearLevel: yrLevel },
+                    function (res) {
+                        if (res.trim() == "") {
+                           
+                            $(".loading-icon").addClass("hide");
+                            $(".button").attr("disabled", false);
+                            $(".btn-txt").text("Search Students");                            
+                        }
+                        else {
+                            mytable = $('#stdlistorigintb').DataTable({
+                                scrollY: '600px',
+                                scrollX: true,
+                                scrollCollapse: true,
+                                paging: false,                                
+                                'columnDefs': [
+                                    {
+                                        'targets': 0,
+                                        'checkboxes': {
+                                            'selectRow': true
+                                        }
+                                    }
+                                ],
+                                'select': {
+                                    'style': 'multi'
+                                },
+                                'order': [[1, 'asc']],
+
+                                'dom': 'Bfrtip',
+                                'buttons': [
+                                    'copyHtml5',
+                                    'excelHtml5',
+                                    'csvHtml5',
+                                    'pdfHtml5', 'print'
+                                ],
+                            });
+
+                            $('#updateadvisor').show();
+                            $(".loading-icon").addClass("hide");
+                            $(".button").attr("disabled", false);
+                            $(".btn-txt").text("Search Students");
+                            
+                        }
+
+                        //$(".Datadiv").show();
+                    }
+                )
+        });
+        $("#stdsearchdestin").click(function () {
+
+            var term = $("#selectedTerm").val();
+            if (term == null || term == undefined) {
+                alert("Please select a valid term for effecient search results!")
+            }
+            $(".loading-icon1").removeClass("hide");
+            $(".button").attr("disabled", true);
+            $(".btn-txt").text("Searching in DB");
+            var originprograms = $("#destinProgram").val();
+            if (originprograms.length > 0) {
+                originprograms = originprograms.join(",");
+            }
+            else {
+                originprograms = "0";
+            }           
+            var originadvisors = $("#destinAdvisor").val();
+
+            $("#stdlistdestination").load("@Url.Action("StudentDetails", "Home")", { searchTerm: term, searchAdvisors: originadvisors, requestType: "destin", searchPrograms: originprograms },
+                    function (res) {
+                        if (res.trim() == "") {
+                            $(".loading-icon1").addClass("hide");
+                            $(".button").attr("disabled", false);
+                            $(".btn-txt").text("Search Students"); 
+                        }
+                        else {                            
+                            $('#stdlistdestintb').DataTable({
+                                scrollY: '600px',
+                                scrollX: true,
+                                scrollCollapse: true,
+                                paging: false
+                            });
+                            $(".loading-icon1").addClass("hide");
+                            $(".button").attr("disabled", false);
+                            $(".btn-txt").text("Search Students"); 
+                        }
+
+                        //$(".Datadiv").show();
+                    }
+                )
+        });
+
+        $('#updateadvisor').click(function () {
+
+            var rows_selected = mytable.column(0).checkboxes.selected();
+            if (rows_selected.length == 0) {
+                $.alert('Select a Student from the list!');
+                return false;
+            }
+            var advisorto = $('#destinAdvisor').val();
+            var popupcontent
+            if (advisorto == 0) {
+                popupcontent = 'Are you sure, you want to transfer the students to a no advisor. If you do so advisor of the student will be unassigned ?';
+            }
+            else {
+                popupcontent = 'Are you sure, you want to transfer the students ?';
+            }
+           
+            if ($('#destinAdvisor').val() == "") {
+
+            }
+                $.confirm({
+                    title: 'Confirm!',
+                    content: popupcontent,
+                    buttons: {
+                        confirm: function () {
+                           
+                            var values = rows_selected.join(",");
+                            if (rows_selected.length > 0) {
+                                var Searchterm = $('#selectedTerm').val();                                
+
+                                $.post('@Url.Action("Updateadvisor", "Home")', { studIDarr: values, Searchterm: Searchterm, advisorto: advisorto },
+                                    function (returnedData) {
+                                        console.log(returnedData);
+                                        if (returnedData.success) {
+                                            $.confirm({
+                                                title: 'Confirm!',
+                                                content: 'All the selected students are moved!',
+                                                buttons: {
+                                                    confirm: function () {
+                                                        $("#stdsearch").click();
+                                                        $("#stdsearchdestin").click();
+                                                    }
+                                                }
+                                            });
+                                            //if (confirm("All the selected jobs are approved!")) {
+                                            //    window.location.reload();
+                                            //}
+                                        }
+                                    }).fail(function () {
+                                        $.alert('Failed to update!');
+                                    });
+
+                            }
+                            else {
+                                $.alert('Please select the students to transfer !');
+                            }
+                        },
+                        cancel: function () {
+                           // $.alert('Canceled!');
+                          //  return false;
+                        },
+                    }
+                });
+            });
+
+    });
+    </script>
+
+
+}
